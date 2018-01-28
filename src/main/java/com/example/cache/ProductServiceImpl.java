@@ -1,10 +1,13 @@
 package com.example.cache;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 @Service
 public class ProductServiceImpl implements ProductService{
+	private static final Logger logger=LoggerFactory.getLogger(ProductServiceImpl.class);
 	@Override
     @Cacheable("products")
     public Product getByName(String name) {
@@ -19,7 +22,7 @@ public class ProductServiceImpl implements ProductService{
  
     public void slowLookupOperation(){
          try {
-        	 System.out.println("implementation is called");
+        	 logger.info("Implementation is called");
                 long time = 5000L;
                 Thread.sleep(time);
             } catch (InterruptedException e) {
