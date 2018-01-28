@@ -21,11 +21,42 @@ private ProductService service;
 		 logger.info("IPhone ->" + service.getByName("IPhone"));
 	        logger.info("IPhone ->" + service.getByName("IPhone"));
 	        logger.info("IPhone ->" + service.getByName("IPhone"));
+	 
+	         
+	        logger.info("Samsung ->" + service.getByName("Samsung"));
+	        logger.info("Samsung ->" + service.getByName("Samsung"));
+	        logger.info("Samsung ->" + service.getByName("Samsung"));
+	        
+	        logger.info("HTC ->" + service.getByName("HTC"));
+	        logger.info("HTC ->" + service.getByName("HTC"));
+	        logger.info("HTC ->" + service.getByName("HTC"));
+	 
+	        Product product = new Product("IPhone",550);
+	        service.updateProduct(product);
+	         
+	        logger.info("IPhone ->" + service.getByName("IPhone"));
+	        logger.info("IPhone ->" + service.getByName("IPhone"));
+	        logger.info("IPhone ->" + service.getByName("IPhone"));
+	         
+	         
 	        logger.info("Refreshing all products");
+	 
 	        service.refreshAllProducts();
 	        logger.info("IPhone [after refresh]->" + service.getByName("IPhone"));
 	        logger.info("IPhone [after refresh]->" + service.getByName("IPhone"));
 	        logger.info("IPhone [after refresh]->" + service.getByName("IPhone"));
+	        
+	        logger.info("Samsung [after refresh]->" + service.getByName("Samsung"));
+	        logger.info("Samsung [after refresh]->" + service.getByName("Samsung"));
+	        
+	        logger.info("Removing Samsung from cache but not Iphone");
+	        product = new Product("Samsung",550);
+	        service.removeFromCache(product.getName());
+	        logger.info("Samsung [after refresh]->" + service.getByName("Samsung"));
+	        logger.info("Samsung [after refresh]->" + service.getByName("Samsung"));
+	       
+	        logger.info("IPhone ->" + service.getByName("IPhone"));
+	        logger.info("IPhone ->" + service.getByName("IPhone"));
 	}
 
 }
