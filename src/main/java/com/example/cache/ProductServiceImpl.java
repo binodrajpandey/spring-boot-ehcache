@@ -54,7 +54,7 @@ public class ProductServiceImpl implements ProductService{
 	    @Cacheable(value="products", key="#name", condition="#name!='HTC'" , unless="#result==null")
 	    public Product getByName(String name) {
 	        logger.info("<!----------Entering getByName()--------------------->");
-	        for(Product p : products){
+	        for(Product p : getProductList()){
 	            if(p.getName().equalsIgnoreCase(name))
 	                return p;
 	        }

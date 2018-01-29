@@ -2,6 +2,7 @@ package com.example.cache;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -10,53 +11,62 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@SpringBootTest(classes={SpringBootCacheApplication.class})
+import net.sf.ehcache.CacheManager;
+
+@SpringBootTest(classes = { SpringBootCacheApplication.class })
 @RunWith(SpringRunner.class)
 public class ProductServiceImplTest {
 	private static final Logger logger = LoggerFactory.getLogger(ProductServiceImplTest.class);
-@Autowired
-private ProductService service;
+	@Autowired
+	private ProductService service;
+
+	/**
+	 * Clear Cache before you run every test
+	 */
+	@Before
+	public void setUp() {
+		service.refreshAllProducts();
+	}
+
+	/**
+	 * Samsung is cached so the reference should be equal
+	 */
 	@Test
-	public void test() {
-		 logger.info("IPhone ->" + service.getByName("IPhone"));
-	        logger.info("IPhone ->" + service.getByName("IPhone"));
-	        logger.info("IPhone ->" + service.getByName("IPhone"));
-	 
-	         
-	        logger.info("Samsung ->" + service.getByName("Samsung"));
-	        logger.info("Samsung ->" + service.getByName("Samsung"));
-	        logger.info("Samsung ->" + service.getByName("Samsung"));
-	        
-	        logger.info("HTC ->" + service.getByName("HTC"));
-	        logger.info("HTC ->" + service.getByName("HTC"));
-	        logger.info("HTC ->" + service.getByName("HTC"));
-	 
-	        Product product = new Product("IPhone",550);
-	        service.updateProduct(product);
-	         
-	        logger.info("IPhone ->" + service.getByName("IPhone"));
-	        logger.info("IPhone ->" + service.getByName("IPhone"));
-	        logger.info("IPhone ->" + service.getByName("IPhone"));
-	         
-	         
-	        logger.info("Refreshing all products");
-	 
-	        service.refreshAllProducts();
-	        logger.info("IPhone [after refresh]->" + service.getByName("IPhone"));
-	        logger.info("IPhone [after refresh]->" + service.getByName("IPhone"));
-	        logger.info("IPhone [after refresh]->" + service.getByName("IPhone"));
-	        
-	        logger.info("Samsung [after refresh]->" + service.getByName("Samsung"));
-	        logger.info("Samsung [after refresh]->" + service.getByName("Samsung"));
-	        
-	        logger.info("Removing Samsung from cache but not Iphone");
-	        product = new Product("Samsung",550);
-	        service.removeFromCache(product.getName());
-	        logger.info("Samsung [after refresh]->" + service.getByName("Samsung"));
-	        logger.info("Samsung [after refresh]->" + service.getByName("Samsung"));
-	       
-	        logger.info("IPhone ->" + service.getByName("IPhone"));
-	        logger.info("IPhone ->" + service.getByName("IPhone"));
+	public void whenCachedShouldReturnEqualReference() {
+		Product product1 = service.getByName("Samsung");
+		Product product2 = service.getByName("Samsung");
+		assertEquals(product1, product2);
+	}
+
+	/**
+	 * we have not cached for HTC so the referencee shouldn't be equal
+	 */
+	@Test
+	public void whenNotCachedShouldReturnDifferentReference() {
+		Product product1 = service.getByName("HTC");
+		Product product2 = service.getByName("HTC");
+		assertNotEquals(product1, product2);
+	}
+
+	@Test
+	public void whenCacheUpdateReturnEqualReference() {
+
+		assertEquals(service.getByName("IPhone"), service.getByName("IPhone"));
+		Product product = new Product("IPhone", 550);
+		service.updateProduct(product);
+		assertEquals(service.getByName("IPhone"), service.getByName("IPhone"));
+	}
+
+	@Test
+	public void whenCacheEvictedForGivenKeyReferenceShouldNotBeEqualForSuccessiveCall() {
+
+		Product product1 = service.getByName("Samsung");
+		Product product2 = service.getByName("Samsung");
+		assertEquals(product1, product2);
+		Product product = new Product("Samsung", 550);
+		service.removeFromCache(product.getName());
+		Product product3 = service.getByName("Samsung");
+		assertNotEquals(product1, product3);
 	}
 
 }
