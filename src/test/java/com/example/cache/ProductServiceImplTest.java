@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 @SpringBootTest(classes = { SpringBootCacheApplication.class })
 @RunWith(SpringRunner.class)
@@ -33,9 +34,15 @@ public class ProductServiceImplTest {
 	 */
 	@Test
 	public void whenCachedShouldReturnEqualReference() {
+		int size = CacheManager.ALL_CACHE_MANAGERS.get(0)
+				  .getCache("products").getSize();
+				assertTrue(size==0);
 		Product product1 = service.getByName("Samsung");
 		Product product2 = service.getByName("Samsung");
 		assertEquals(product1, product2);
+		 size = CacheManager.ALL_CACHE_MANAGERS.get(0)
+				  .getCache("products").getSize();
+				assertTrue(size>0);
 	}
 
 	/**
@@ -48,13 +55,17 @@ public class ProductServiceImplTest {
 		assertNotEquals(product1, product2);
 	}
 
+	/**
+	 * 
+	 */
 	@Test
 	public void whenCacheUpdateReturnEqualReference() {
-
-		assertEquals(service.getByName("IPhone"), service.getByName("IPhone"));
 		Product product = new Product("IPhone", 550);
 		service.updateProduct(product);
-		assertEquals(service.getByName("IPhone"), service.getByName("IPhone"));
+		Element cachedProduct = CacheManager.ALL_CACHE_MANAGERS.get(0)
+				  .getCache("products").get("IPhone");
+				assertNotNull(cachedProduct.getValue());
+				
 	}
 
 	@Test
